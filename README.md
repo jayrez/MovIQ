@@ -31,7 +31,7 @@
 
 - **HTML & CSS** – Layout and styling
 - **Vanilla JavaScript** – Game logic and animations
-- **GitHub Pages** – Static hosting
+- **CloudFlare Pages** – Static hosting
 
 ---
 
