@@ -45,7 +45,7 @@
 
 ## 🚀 Deployment
 
-MovIQ is hosted on **GitHub Pages**.  
+MovIQ is hosted on **CloudFlare Pages**.  
 To run locally, just clone the repo and open `index.html` in your browser.
 
 ---
