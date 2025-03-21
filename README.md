@@ -52,11 +52,9 @@ To run locally, just clone the repo and open `index.html` in your browser.
 
 ## 📄 License
 
-This project is **not open-source**. All rights reserved.  
-You may not copy, distribute, or reuse any part of the codebase without explicit permission from the creator.
+This project is open-source and licensed under the [MIT License](LICENSE).  
+You are free to use, modify, and distribute it with proper attribution.
 
 ---
 
 > Created with ❤️ as a passion project inspired by Wordle and bad movie summaries.
-
-
