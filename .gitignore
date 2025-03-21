@@ -1,0 +1,13 @@
+# macOS system files
+.DS_Store
+
+# VSCode workspace settings (optional)
+.vscode/
+
+# Node.js dependencies (only if you use tools later)
+node_modules/
+npm-debug.log
+
+# Output/build folders (for future bundling)
+dist/
+build/
