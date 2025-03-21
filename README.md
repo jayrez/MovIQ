@@ -36,10 +36,10 @@
 ---
 
 ## 📁 File Structure
-/index.html # Main HTML structure
-/style.css # Styles and animations
-/script.js # Game logic and input
-/data.js # List of possible movie titles and answers
+- /index.html # Main HTML structure
+- /style.css # Styles and animations
+- /script.js # Game logic and input
+- /data.js # List of possible movie titles and answers
 
 ---
 
