@@ -55,7 +55,7 @@ const keyboardLayout = [
 ];
 
 function createKeyboard() {
-  keyboardEl.innerHTML = ""; // Clear existing keyboard
+  keyboardEl.innerHTML = "";
 
   keyboardLayout.forEach(rowKeys => {
     const row = document.createElement("div");
@@ -64,18 +64,16 @@ function createKeyboard() {
     rowKeys.forEach(key => {
       const btn = document.createElement("button");
       btn.className = "key";
+      btn.innerText = key;
 
       if (key === "⌫") {
-        btn.innerText = "⌫";
         btn.classList.add("backspace-key");
-        btn.onclick = () => removeLetter(); // ✅ directly call removeLetter
+        btn.onclick = () => handleKey("Backspace");
       } else if (key === "ENTER") {
-        btn.innerText = "ENTER";
         btn.classList.add("enter-key");
-        btn.onclick = () => submitGuess(); // ✅ directly call submitGuess
+        btn.onclick = () => handleKey("Enter");
       } else {
-        btn.innerText = key;
-        btn.onclick = () => handleKey(key); // only pass valid letters
+        btn.onclick = () => handleKey(key.toUpperCase());
       }
 
       row.appendChild(btn);
@@ -101,9 +99,9 @@ document.addEventListener('keydown', (e) => {
 function handleKey(key) {
   if (gameOver) return;
 
-  if (key === 'ENTER') {
+  if (key === 'Enter') {
     submitGuess();
-  } else if (key === 'BACKSPACE') {
+  } else if (key === 'Backspace') {
     removeLetter();
   } else if (/^[A-Z]$/.test(key)) {
     addLetter(key);
