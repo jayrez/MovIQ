@@ -168,28 +168,26 @@ function updateGrid() {
       if (target[i] === " ") continue;
     
       setTimeout(() => {
-        tile.classList.add("flip");
+        const letter = guessUpper[guessIndex];
     
-        setTimeout(() => {
-          const letter = guessUpper[guessIndex];
+        // ✅ Apply the final color class *before* triggering the flip animation
+        if (letter === normalizedTarget[guessIndex]) {
+          tile.classList.add("correct");
+          markKey(letter, "correct");
+          tempTargetArray[guessIndex] = null;
+        } else if (tempTargetArray.includes(letter)) {
+          tile.classList.add("present");
+          markKey(letter, "present");
+          tempTargetArray[tempTargetArray.indexOf(letter)] = null;
+        } else {
+          tile.classList.add("absent");
+          markKey(letter, "absent");
+        }
     
-          if (letter === normalizedTarget[guessIndex]) {
-            tile.classList.add("correct");
-            markKey(letter, "correct");
-            tempTargetArray[guessIndex] = null;
-          } else if (tempTargetArray.includes(letter)) {
-            tile.classList.add("present");
-            markKey(letter, "present");
-            tempTargetArray[tempTargetArray.indexOf(letter)] = null;
-          } else {
-            tile.classList.add("absent");
-            markKey(letter, "absent");
-          }
-    
-          guessIndex++;
-        }, 250); // during the flip
-      }, i * 200); // staggered
-    }    
+        tile.classList.add("flip"); // ✅ Flip after color is set
+        guessIndex++;
+      }, i * 200); // staggered flip delay
+    }       
   
     // Second pass: Apply "present" (yellow) and "absent" (gray) after flipping
     setTimeout(() => {
