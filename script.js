@@ -7,7 +7,7 @@ const messageEl = document.getElementById("message");
 
 const MAX_GUESSES = 6;
 const target = gameData.answer.toUpperCase().replace(/'/g, ""); // Remove apostrophes completely
-const normalizedTarget = target.replace(/[^A-Z]/g, ""); // Remove spaces and special characters for input checking
+const normalizedTarget = target.replace(/[^A-Z ]/g, ""); // keep spaces // Remove spaces and special characters for input checking
 
 const prompt = gameData.prompt;
 
@@ -51,7 +51,7 @@ createGrid();
 const keyboardLayout = [
   ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
   ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
-  ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
+  ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "SPACE", "⌫"]
 ];
 
 function createKeyboard() {
@@ -72,9 +72,13 @@ function createKeyboard() {
       } else if (key === "ENTER") {
         btn.classList.add("enter-key");
         btn.onclick = () => handleKey("Enter");
+      } else if (key === "SPACE") {
+        btn.classList.add("space-key");
+        btn.innerText = "␣"; // Optional: make it look clean
+        btn.onclick = () => handleKey(" ");
       } else {
         btn.onclick = () => handleKey(key.toUpperCase());
-      }
+      }      
 
       row.appendChild(btn);
     });
@@ -97,7 +101,7 @@ function handleKey(key) {
     submitGuess();
   } else if (key === 'Backspace') {
     removeLetter();
-  } else if (/^[a-zA-Z]$/.test(key)) {
+  } else if (/^[a-zA-Z ]$/.test(key)) {
     addLetter(key.toUpperCase());
   }
 }

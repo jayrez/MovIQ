@@ -154,6 +154,10 @@ body {
   .backspace-key {
     width: 60px;
   }
+
+  .space-key {
+    width: 50px;
+  }  
   
   .message {
     margin-top: 1rem;
