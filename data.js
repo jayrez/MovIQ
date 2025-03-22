@@ -1,7 +1,7 @@
 // data.js
 
 const movieList = [
-        { prompt: "Businessman uses capitalism to outsmart genocide.", answer: "Schindler's List" }
+        { prompt: "Businessman uses capitalism to outsmart genocide.", answer: "Schindler's List" },
         { prompt: "Shy woman accidentally turns her hometown into a snowglobe.", answer: "Frozen" },
         { prompt: "Neurotic dad crosses the ocean to rescue his kidnapped son, makes unlikely friends.", answer: "Finding Nemo" },
         { prompt: "Egomaniac builds fancy suit to avoid talking about his feelings.", answer: "Iron Man" },
