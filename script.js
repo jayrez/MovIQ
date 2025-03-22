@@ -164,55 +164,52 @@ function updateGrid() {
     // First, apply flip animation before changing colors
     for (let i = 0; i < target.length; i++) {
       const tile = rowEl.children[i];
-  
-      if (target[i] === " ") continue; // Skip spaces
-  
+    
+      if (target[i] === " ") continue;
+    
       setTimeout(() => {
-        tile.classList.add("flip"); // Start the flip animation
-  
-        // After flip animation completes, apply colors
+        tile.classList.add("flip");
+    
         setTimeout(() => {
           const letter = guessUpper[guessIndex];
-  
-          // Step 1: Mark correct letters (Green)
+    
           if (letter === normalizedTarget[guessIndex]) {
             tile.classList.add("correct");
             markKey(letter, "correct");
-            tempTargetArray[guessIndex] = null; // Remove from temp array to prevent duplicate marking
+            tempTargetArray[guessIndex] = null;
+          } else if (tempTargetArray.includes(letter)) {
+            tile.classList.add("present");
+            markKey(letter, "present");
+            tempTargetArray[tempTargetArray.indexOf(letter)] = null;
+          } else {
+            tile.classList.add("absent");
+            markKey(letter, "absent");
           }
-          
+    
           guessIndex++;
-        }, 250); // Delay color application until half-flip
-  
-      }, i * 200); // Stagger tile flips
-    }
+        }, 250); // during the flip
+      }, i * 200); // staggered
+    }    
   
     // Second pass: Apply "present" (yellow) and "absent" (gray) after flipping
     setTimeout(() => {
-      guessIndex = 0;
-      for (let i = 0; i < target.length; i++) {
-        const tile = rowEl.children[i];
-  
-        if (target[i] === " ") continue; // Skip spaces
-  
-        const letter = guessUpper[guessIndex];
-  
-        // Step 2: Mark present letters (Yellow)
-        if (letter !== normalizedTarget[guessIndex] && tempTargetArray.includes(letter)) {
-          tile.classList.add("present");
-          markKey(letter, "present");
-          tempTargetArray[tempTargetArray.indexOf(letter)] = null; // Remove from temp array
-        }
-  
-        // Step 3: Mark absent letters (Gray)
-        else if (!normalizedTarget.includes(letter)) {
-          tile.classList.add("absent");
-          markKey(letter, "absent");
-        }
-  
-        guessIndex++;
+      const letter = guessUpper[guessIndex];
+    
+      if (letter === normalizedTarget[guessIndex]) {
+        tile.classList.add("correct");
+        markKey(letter, "correct");
+        tempTargetArray[guessIndex] = null;
+      } else if (tempTargetArray.includes(letter)) {
+        tile.classList.add("present");
+        markKey(letter, "present");
+        tempTargetArray[tempTargetArray.indexOf(letter)] = null;
+      } else {
+        tile.classList.add("absent");
+        markKey(letter, "absent");
       }
-    }, target.length * 200 + 250); // Ensure this runs after all flips complete
+    
+      guessIndex++;
+    }, 250);
   
     guesses.push(currentGuess);
     if (guessUpper.replace(/\s/g, "") === normalizedTarget) {
