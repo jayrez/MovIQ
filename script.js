@@ -46,6 +46,7 @@ function createGrid() {
     }
   }  
 createGrid();
+createKeyboard(); 
 
 // Create on-screen keyboard
 const keyboardLayout = [
