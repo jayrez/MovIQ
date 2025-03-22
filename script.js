@@ -46,7 +46,6 @@ function createGrid() {
     }
   }  
 createGrid();
-createKeyboard(); 
 
 // Create on-screen keyboard
 const keyboardLayout = [
@@ -83,18 +82,12 @@ function createKeyboard() {
     keyboardEl.appendChild(row);
   });
 }
+createKeyboard(); 
 
-// Keyboard input handling
+// Keyboard input handlingdocument.addEventListener('keydown', (e) => {
 document.addEventListener('keydown', (e) => {
   if (gameOver) return;
-  const key = e.key.toUpperCase();
-  if (key === 'ENTER') {
-    submitGuess();
-  } else if (key === 'BACKSPACE') {
-    removeLetter();
-  } else if (/^[A-Z]$/.test(key)) {
-    addLetter(key);
-  }
+  handleKey(e.key);
 });
 
 function handleKey(key) {
@@ -104,8 +97,8 @@ function handleKey(key) {
     submitGuess();
   } else if (key === 'Backspace') {
     removeLetter();
-  } else if (/^[A-Z]$/.test(key)) {
-    addLetter(key);
+  } else if (/^[a-zA-Z]$/.test(key)) {
+    addLetter(key.toUpperCase());
   }
 }
 
