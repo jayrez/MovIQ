@@ -63,24 +63,20 @@ function createKeyboard() {
 
     rowKeys.forEach(key => {
       const btn = document.createElement("button");
-      btn.textContent = key;
       btn.className = "key";
 
-      if (key === "ENTER") {
-        btn.classList.add("enter-key");
-      } else if (key === "⌫") {
+      if (key === "⌫") {
+        btn.textContent = "⌫";
         btn.classList.add("backspace-key");
+        btn.onclick = () => handleKey("BACKSPACE");
+      } else if (key === "ENTER") {
+        btn.textContent = "ENTER";
+        btn.classList.add("enter-key");
+        btn.onclick = () => handleKey("ENTER");
+      } else {
+        btn.textContent = key;
+        btn.onclick = () => handleKey(key);
       }
-
-      btn.onclick = () => {
-        if (key === "⌫") {
-          handleKey("BACKSPACE");
-        } else if (key === "ENTER") {
-          handleKey("ENTER");
-        } else {
-          handleKey(key);
-        }
-      };
 
       row.appendChild(btn);
     });
