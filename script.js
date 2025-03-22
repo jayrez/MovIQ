@@ -72,14 +72,22 @@ function createKeyboard() {
         btn.classList.add("backspace-key");
       }
 
-      btn.onclick = () => handleKey(key === "⌫" ? "BACKSPACE" : key);
+      btn.onclick = () => {
+        if (key === "⌫") {
+          handleKey("BACKSPACE");
+        } else if (key === "ENTER") {
+          handleKey("ENTER");
+        } else {
+          handleKey(key);
+        }
+      };
+
       row.appendChild(btn);
     });
 
     keyboardEl.appendChild(row);
   });
 }
-createKeyboard();
 
 // Keyboard input handling
 document.addEventListener('keydown', (e) => {
