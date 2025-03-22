@@ -66,16 +66,16 @@ function createKeyboard() {
       btn.className = "key";
 
       if (key === "⌫") {
-        btn.textContent = "⌫";
+        btn.innerText = "⌫";
         btn.classList.add("backspace-key");
-        btn.onclick = () => handleKey("BACKSPACE");
+        btn.onclick = () => removeLetter(); // ✅ directly call removeLetter
       } else if (key === "ENTER") {
-        btn.textContent = "ENTER";
+        btn.innerText = "ENTER";
         btn.classList.add("enter-key");
-        btn.onclick = () => handleKey("ENTER");
+        btn.onclick = () => submitGuess(); // ✅ directly call submitGuess
       } else {
-        btn.textContent = key;
-        btn.onclick = () => handleKey(key);
+        btn.innerText = key;
+        btn.onclick = () => handleKey(key); // only pass valid letters
       }
 
       row.appendChild(btn);
