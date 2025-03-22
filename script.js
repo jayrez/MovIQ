@@ -96,7 +96,14 @@ document.addEventListener('keydown', (e) => {
 
 function handleKey(key) {
   if (gameOver) return;
-  addLetter(key);
+
+  if (key === 'ENTER') {
+    submitGuess();
+  } else if (key === 'BACKSPACE') {
+    removeLetter();
+  } else if (/^[A-Z]$/.test(key)) {
+    addLetter(key);
+  }
 }
 
 function addLetter(letter) {
