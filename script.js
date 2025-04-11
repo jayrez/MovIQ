@@ -236,7 +236,6 @@ function createKeyboard() {
     const row = document.createElement("div");
     row.classList.add("keyboard-row");
     
-    // Add left padding for middle row (iOS style)
     if (rowIndex === 1) {
       const leftPad = document.createElement("div");
       leftPad.style.flex = "0.5";
@@ -260,13 +259,17 @@ function createKeyboard() {
         btn.onclick = () => handleKey("Enter");
       } else {
         btn.innerText = key;
-        btn.onclick = () => handleKey(key.toUpperCase());
+        // Only allow clicking if we haven't filled all tiles
+        btn.onclick = () => {
+          if (currentGuess.length < target.length) {
+            handleKey(key);
+          }
+        };
       }      
 
       row.appendChild(btn);
     });
 
-    // Add right padding for middle row (iOS style)
     if (rowIndex === 1) {
       const rightPad = document.createElement("div");
       rightPad.style.flex = "0.5";
@@ -283,16 +286,25 @@ function createKeyboard() {
   const spaceBtn = document.createElement("button");
   spaceBtn.className = "key space-key";
   spaceBtn.innerText = "space";
-  spaceBtn.onclick = () => handleKey(" ");
+  // Only allow space if we haven't filled all tiles
+  spaceBtn.onclick = () => {
+    if (currentGuess.length < target.length) {
+      handleKey(" ");
+    }
+  };
   
   spaceRow.appendChild(spaceBtn);
   keyboardEl.appendChild(spaceRow);
 }
 createKeyboard(); 
 
-// Keyboard input handlingdocument.addEventListener('keydown', (e) => {
+// Keyboard input handling
 document.addEventListener('keydown', (e) => {
-  if (gameOver) return;
+  // Only process letter keys if we haven't filled all tiles
+  if (currentGuess.length >= target.length && /^[a-zA-Z ]$/.test(e.key)) {
+    e.preventDefault();
+    return;
+  }
   handleKey(e.key);
 });
 
@@ -304,20 +316,23 @@ function handleKey(key) {
   } else if (key === 'Backspace') {
     removeLetter();
   } else if (/^[a-zA-Z ]$/.test(key)) {
-    addLetter(key.toUpperCase());
-  }
-}
-
-function addLetter(letter) {
-  if (currentGuess.length < normalizedTarget.length) {
-    currentGuess += letter;
+    // If we're at or past the limit, reset to the correct length
+    if (currentGuess.length >= target.length) {
+      currentGuess = currentGuess.slice(0, target.length);
+      updateGrid();
+      return;
+    }
+    
+    currentGuess += key.toUpperCase();
     updateGrid();
   }
 }
 
 function removeLetter() {
-  currentGuess = currentGuess.slice(0, -1);
-  updateGrid();
+  if (currentGuess.length > 0) {
+    currentGuess = currentGuess.slice(0, -1);
+    updateGrid();
+  }
 }
 
 function updateGrid() {
@@ -341,13 +356,17 @@ function updateGrid() {
                 continue;
             }
 
-            // Don't count apostrophes in the position tracking
-            if (currentGuessPos === currentGuess.replace(/'/g, "").length - 1) {
-                tile.classList.add("bounce");
-                setTimeout(() => tile.classList.remove("bounce"), 150);
+            // Only update tile if we haven't exceeded the current guess length
+            if (currentGuessPos < currentGuess.length) {
+                tile.textContent = currentGuess[currentGuessPos];
+                if (currentGuessPos === currentGuess.length - 1) {
+                    tile.classList.add("bounce");
+                    setTimeout(() => tile.classList.remove("bounce"), 150);
+                }
+            } else {
+                tile.textContent = "";
             }
-
-            tile.textContent = currentGuess[currentGuessPos] || "";
+            
             if (rowText[i] !== " ") currentGuessPos++;
         }
     });
@@ -357,6 +376,13 @@ function submitGuess() {
     // Get normalized lengths without apostrophes for comparison
     const normalizedGuessLength = currentGuess.replace(/'/g, "").length;
     const normalizedTargetLength = normalizedTarget.replace(/\s/g, "").length;
+
+    // If the guess is too long, truncate it to the correct length
+    if (normalizedGuessLength > normalizedTargetLength) {
+        currentGuess = currentGuess.slice(0, normalizedTargetLength);
+        updateGrid();
+        return;
+    }
 
     if (normalizedGuessLength !== normalizedTargetLength) {
         showMessage(`Need ${normalizedTargetLength - normalizedGuessLength} more letters`);
@@ -372,6 +398,7 @@ function submitGuess() {
     let guessPos = 0;
     let tempTargetArray = normalizedTarget.split("");
 
+    // First pass: mark correct letters
     titleRows.forEach((rowText, rowIndex) => {
         const row = guessContainer.children[rowIndex];
         if (!row) return;
@@ -382,29 +409,49 @@ function submitGuess() {
 
             const letter = guessUpper[guessPos];
             
-            setTimeout(() => {
-                if (letter === normalizedTarget[guessPos]) {
-                    tile.classList.add("correct");
-                    markKey(letter, "correct");
-                    tempTargetArray[guessPos] = null;
-                } else if (tempTargetArray.includes(letter)) {
+            if (letter === normalizedTarget[guessPos]) {
+                tile.classList.add("correct");
+                markKey(letter, "correct");
+                tempTargetArray[guessPos] = null; // Mark as used
+            }
+            
+            guessPos++;
+        }
+    });
+
+    // Reset guessPos for second pass
+    guessPos = 0;
+
+    // Second pass: mark present and absent letters
+    titleRows.forEach((rowText, rowIndex) => {
+        const row = guessContainer.children[rowIndex];
+        if (!row) return;
+
+        for (let i = 0; i < rowText.length; i++) {
+            const tile = row.children[i];
+            if (!tile || rowText[i] === " ") continue;
+
+            const letter = guessUpper[guessPos];
+            
+            // Skip if already marked as correct
+            if (!tile.classList.contains("correct")) {
+                if (tempTargetArray.includes(letter)) {
                     tile.classList.add("present");
                     markKey(letter, "present");
-                    tempTargetArray[tempTargetArray.indexOf(letter)] = null;
+                    tempTargetArray[tempTargetArray.indexOf(letter)] = null; // Mark as used
                 } else {
                     tile.classList.add("absent");
                     markKey(letter, "absent");
                 }
-                
-                tile.classList.add("flip");
-                
-                // Move to next slide after last tile is flipped
-                if (guessPos === normalizedTarget.length - 1) {
-                    setTimeout(() => {
-                        goToSlide(guessIndex + 1);
-                    }, 250);
-                }
-            }, i * 200);
+            }
+            
+            tile.classList.add("flip");
+            
+            if (guessPos === normalizedTarget.length - 1) {
+                setTimeout(() => {
+                    goToSlide(guessIndex + 1);
+                }, 250);
+            }
 
             guessPos++;
         }
@@ -435,3 +482,4 @@ function markKey(letter, status) {
     keyBtn.classList.add('absent');
   }
 }
+
