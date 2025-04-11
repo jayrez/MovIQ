@@ -373,114 +373,96 @@ function updateGrid() {
 }
 
 function submitGuess() {
-    // Get normalized lengths without apostrophes for comparison
-    const normalizedGuessLength = currentGuess.replace(/'/g, "").length;
-    const normalizedTargetLength = normalizedTarget.replace(/\s/g, "").length;
+  const guessIndex = guesses.length;
+  const guessContainer = carouselEl.children[guessIndex];
+  if (!guessContainer) return;
 
-    // If the guess is too long, truncate it to the correct length
-    if (normalizedGuessLength > normalizedTargetLength) {
-        currentGuess = currentGuess.slice(0, normalizedTargetLength);
-        updateGrid();
-        return;
+  // Get the target answer without apostrophes
+  const targetAnswer = gameData.answer.toUpperCase().replace(/'/g, "");
+  const guessUpper = currentGuess.toUpperCase();
+  
+  // Get all tiles in order
+  const allTiles = [];
+  const allTargetChars = [];
+  
+  const titleRows = splitIntoRows(targetAnswer);
+  titleRows.forEach((rowText, rowIndex) => {
+    const row = guessContainer.children[rowIndex];
+    if (!row) return;
+    
+    for (let i = 0; i < rowText.length; i++) {
+      if (rowText[i] === " ") continue;
+      const tile = row.children[i];
+      if (tile) {
+        allTiles.push(tile);
+        allTargetChars.push(rowText[i]);
+      }
     }
-
-    if (normalizedGuessLength !== normalizedTargetLength) {
-        showMessage(`Need ${normalizedTargetLength - normalizedGuessLength} more letters`);
-        return;
+  });
+  
+  // Create arrays for checking
+  const guessChars = guessUpper.split('');
+  const targetChars = [...allTargetChars];
+  
+  // Mark correct letters first
+  for (let i = 0; i < allTiles.length; i++) {
+    if (i >= guessChars.length) break;
+    
+    if (guessChars[i] === targetChars[i]) {
+      setTimeout(() => {
+        allTiles[i].classList.add("correct");
+        allTiles[i].classList.add("flip");
+        markKey(guessChars[i], "correct");
+      }, i * 200);
+      
+      // Mark as used
+      guessChars[i] = null;
+      targetChars[i] = null;
     }
-
-    const guessUpper = currentGuess.toUpperCase().replace(/'/g, "");
-    const guessIndex = guesses.length;
-    const guessContainer = carouselEl.children[guessIndex];
-    if (!guessContainer) return;
-
-    const titleRows = splitIntoRows(target);
-    let guessPos = 0;
-    let tempTargetArray = target.split(""); // Keep original target with spaces
-
-    // First pass: mark correct letters
-    titleRows.forEach((rowText, rowIndex) => {
-        const row = guessContainer.children[rowIndex];
-        if (!row) return;
-
-        for (let i = 0; i < rowText.length; i++) {
-            const tile = row.children[i];
-            if (!tile || rowText[i] === " ") continue;
-
-            const letter = guessUpper[guessPos];
-            const targetLetter = target[guessPos];
-            
-            // Check if letter is in correct position
-            if (letter === targetLetter) {
-                tile.classList.add("correct");
-                markKey(letter, "correct");
-                tempTargetArray[guessPos] = null; // Mark as used
-            }
-            
-            guessPos++;
-        }
-    });
-
-    // Reset guessPos for second pass
-    guessPos = 0;
-
-    // Second pass: mark present and absent letters
-    titleRows.forEach((rowText, rowIndex) => {
-        const row = guessContainer.children[rowIndex];
-        if (!row) return;
-
-        for (let i = 0; i < rowText.length; i++) {
-            const tile = row.children[i];
-            if (!tile || rowText[i] === " ") continue;
-
-            const letter = guessUpper[guessPos];
-            
-            // Skip if already marked as correct
-            if (!tile.classList.contains("correct")) {
-                // Check if letter exists in remaining target letters (excluding current position)
-                let found = false;
-                for (let j = 0; j < tempTargetArray.length; j++) {
-                    if (j !== guessPos && tempTargetArray[j] === letter) {
-                        tile.classList.add("present");
-                        markKey(letter, "present");
-                        tempTargetArray[j] = null; // Mark as used
-                        found = true;
-                        break;
-                    }
-                }
-                
-                if (!found) {
-                    tile.classList.add("absent");
-                    markKey(letter, "absent");
-                }
-            }
-            
-            // Add animation with delay
-            setTimeout(() => {
-                tile.classList.add("flip");
-                
-                // Move to next slide after last tile is flipped
-                if (guessPos === normalizedTarget.length - 1) {
-                    setTimeout(() => {
-                        goToSlide(guessIndex + 1);
-                    }, 250);
-                }
-            }, i * 200);
-
-            guessPos++;
-        }
-    });
-
-    guesses.push(currentGuess);
-    if (guessUpper.replace(/\s/g, "") === normalizedTarget) {
-        setTimeout(() => showMessage("🎉 Correct! You win!"), 1000);
-        gameOver = true;
-    } else if (guesses.length === MAX_GUESSES) {
-        setTimeout(() => showMessage(`💀 Out of tries! Answer was: ${gameData.answer}`), 1000);
-        gameOver = true;
-    }
-
-    currentGuess = "";
+  }
+  
+  // Then mark present/absent letters
+  for (let i = 0; i < allTiles.length; i++) {
+    if (i >= guessChars.length) break;
+    if (guessChars[i] === null) continue; // Skip already marked correct
+    
+    setTimeout(() => {
+      // Check if letter exists elsewhere in target
+      const targetIndex = targetChars.findIndex(char => char === guessChars[i]);
+      
+      if (targetIndex !== -1) {
+        allTiles[i].classList.add("present");
+        markKey(guessChars[i], "present");
+        targetChars[targetIndex] = null; // Mark as used
+      } else {
+        allTiles[i].classList.add("absent");
+        markKey(guessChars[i], "absent");
+      }
+      
+      allTiles[i].classList.add("flip");
+      
+      // Move to next slide after last tile is flipped
+      if (i === allTiles.length - 1) {
+        setTimeout(() => {
+          goToSlide(guessIndex + 1);
+        }, 250);
+      }
+    }, i * 200);
+  }
+  
+  guesses.push(currentGuess);
+  
+  // Check for win
+  const isCorrect = guessUpper === targetAnswer;
+  if (isCorrect) {
+    setTimeout(() => showMessage("🎉 Correct! You win!"), 1000);
+    gameOver = true;
+  } else if (guesses.length === MAX_GUESSES) {
+    setTimeout(() => showMessage(`💀 Out of tries! Answer was: ${gameData.answer}`), 1000);
+    gameOver = true;
+  }
+  
+  currentGuess = "";
 }
 
 function showMessage(msg) {
