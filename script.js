@@ -396,7 +396,7 @@ function submitGuess() {
 
     const titleRows = splitIntoRows(target);
     let guessPos = 0;
-    let tempTargetArray = normalizedTarget.split("");
+    let tempTargetArray = target.split(""); // Keep original target with spaces
 
     // First pass: mark correct letters
     titleRows.forEach((rowText, rowIndex) => {
@@ -408,8 +408,10 @@ function submitGuess() {
             if (!tile || rowText[i] === " ") continue;
 
             const letter = guessUpper[guessPos];
+            const targetLetter = target[guessPos];
             
-            if (letter === normalizedTarget[guessPos]) {
+            // Check if letter is in correct position
+            if (letter === targetLetter) {
                 tile.classList.add("correct");
                 markKey(letter, "correct");
                 tempTargetArray[guessPos] = null; // Mark as used
@@ -435,11 +437,19 @@ function submitGuess() {
             
             // Skip if already marked as correct
             if (!tile.classList.contains("correct")) {
-                if (tempTargetArray.includes(letter)) {
-                    tile.classList.add("present");
-                    markKey(letter, "present");
-                    tempTargetArray[tempTargetArray.indexOf(letter)] = null; // Mark as used
-                } else {
+                // Check if letter exists in remaining target letters (excluding current position)
+                let found = false;
+                for (let j = 0; j < tempTargetArray.length; j++) {
+                    if (j !== guessPos && tempTargetArray[j] === letter) {
+                        tile.classList.add("present");
+                        markKey(letter, "present");
+                        tempTargetArray[j] = null; // Mark as used
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found) {
                     tile.classList.add("absent");
                     markKey(letter, "absent");
                 }
