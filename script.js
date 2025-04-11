@@ -445,13 +445,17 @@ function submitGuess() {
                 }
             }
             
-            tile.classList.add("flip");
-            
-            if (guessPos === normalizedTarget.length - 1) {
-                setTimeout(() => {
-                    goToSlide(guessIndex + 1);
-                }, 250);
-            }
+            // Add animation with delay
+            setTimeout(() => {
+                tile.classList.add("flip");
+                
+                // Move to next slide after last tile is flipped
+                if (guessPos === normalizedTarget.length - 1) {
+                    setTimeout(() => {
+                        goToSlide(guessIndex + 1);
+                    }, 250);
+                }
+            }, i * 200);
 
             guessPos++;
         }
