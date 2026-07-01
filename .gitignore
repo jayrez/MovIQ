@@ -11,3 +11,4 @@ npm-debug.log
 # Output/build folders (for future bundling)
 dist/
 build/
+.aider*
