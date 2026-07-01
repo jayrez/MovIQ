@@ -478,4 +478,3 @@ function markKey(letter, status) {
     keyBtn.classList.add('absent');
   }
 }
-
