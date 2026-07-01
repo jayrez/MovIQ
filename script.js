@@ -9,7 +9,7 @@ const messageEl = document.getElementById("message");
 const prevButton = document.getElementById('prev-button');
 const nextButton = document.getElementById('next-button');
 
-const MAX_GUESSES = 4;
+const MAX_GUESSES = 3; // Change to 3 attempts
 const target = gameData.answer.toUpperCase().replace(/'/g, ""); // Remove apostrophes completely
 const normalizedTarget = target.replace(/[^A-Z ]/g, ""); // keep spaces // Remove spaces and special characters for input checking
 
