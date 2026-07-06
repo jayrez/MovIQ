@@ -61,6 +61,8 @@ h1 {
     min-height: min-content;
     margin: 0.5rem 0;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 1;
@@ -438,47 +440,62 @@ h1 {
 
 /* Add Previous/Next buttons */
 .carousel-controls {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: relative;
+    width: 112px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     pointer-events: none;
-    padding: 0 1rem;
-    z-index: 3;
+    padding: 0;
+    margin-top: 0.65rem;
+    z-index: 2;
 }
 
 .carousel-button {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    border: 2px solid #3a3a3c;
+    border-radius: 6px;
+    background: rgba(18, 18, 19, 0.92);
+    color: #d7dadc;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease;
-    pointer-events: auto; /* Re-enable clicking on buttons */
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    pointer-events: auto;
+    opacity: 0.75;
+    box-shadow: var(--key-shadow);
+    transition: opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+.carousel-button svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .grid:hover .carousel-button {
-    opacity: 1;
+    opacity: 0.95;
 }
 
 .carousel-button:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: #2f3033;
+    border-color: #565758;
+    color: #ffffff;
+}
+
+.carousel-button:active {
+    transform: scale(0.96);
 }
 
 .carousel-button:disabled {
-    opacity: 0;
+    opacity: 0.25;
     cursor: default;
+    transform: none;
 }
 
 /* Hide buttons on touch devices */

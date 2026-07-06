@@ -12,6 +12,8 @@ const nextButton = document.getElementById('next-button');
 const MAX_GUESSES = 3; // Change to 3 attempts
 const target = gameData.answer.toUpperCase().replace(/'/g, ""); // Remove apostrophes completely
 const normalizedTarget = target.replace(/[^A-Z ]/g, ""); // keep spaces // Remove spaces and special characters for input checking
+const answerTiles = target.replace(/\s/g, "");
+const targetTileCount = answerTiles.length;
 
 const prompt = gameData.prompt;
 
@@ -140,7 +142,6 @@ function createGrid() {
             guessContainer.classList.add("current");
         } else {
             guessContainer.classList.add("next");
-            guessContainer.style.transform = `translateY(${100}%)`;
         }
 
         titleRows.forEach((rowText, rowIndex) => {
@@ -261,7 +262,7 @@ function createKeyboard() {
         btn.innerText = key;
         // Only allow clicking if we haven't filled all tiles
         btn.onclick = () => {
-          if (currentGuess.length < target.length) {
+          if (currentGuess.length < targetTileCount) {
             handleKey(key);
           }
         };
@@ -279,29 +280,13 @@ function createKeyboard() {
     keyboardEl.appendChild(row);
   });
 
-  // Add space bar row
-  const spaceRow = document.createElement("div");
-  spaceRow.classList.add("keyboard-row", "space-row");
-  
-  const spaceBtn = document.createElement("button");
-  spaceBtn.className = "key space-key";
-  spaceBtn.innerText = "space";
-  // Only allow space if we haven't filled all tiles
-  spaceBtn.onclick = () => {
-    if (currentGuess.length < target.length) {
-      handleKey(" ");
-    }
-  };
-  
-  spaceRow.appendChild(spaceBtn);
-  keyboardEl.appendChild(spaceRow);
 }
 createKeyboard(); 
 
 // Keyboard input handling
 document.addEventListener('keydown', (e) => {
   // Only process letter keys if we haven't filled all tiles
-  if (currentGuess.length >= target.length && /^[a-zA-Z ]$/.test(e.key)) {
+  if (currentGuess.length >= targetTileCount && /^[a-zA-Z ]$/.test(e.key)) {
     e.preventDefault();
     return;
   }
@@ -315,10 +300,10 @@ function handleKey(key) {
     submitGuess();
   } else if (key === 'Backspace') {
     removeLetter();
-  } else if (/^[a-zA-Z ]$/.test(key)) {
+  } else if (/^[a-zA-Z]$/.test(key)) {
     // If we're at or past the limit, reset to the correct length
-    if (currentGuess.length >= target.length) {
-      currentGuess = currentGuess.slice(0, target.length);
+    if (currentGuess.length >= targetTileCount) {
+      currentGuess = currentGuess.slice(0, targetTileCount);
       updateGrid();
       return;
     }
@@ -380,6 +365,11 @@ function submitGuess() {
   // Get the target answer without apostrophes
   const targetAnswer = gameData.answer.toUpperCase().replace(/'/g, "");
   const guessUpper = currentGuess.toUpperCase();
+  if (guessUpper.length !== targetTileCount) {
+    showMessage("Not enough letters.");
+    return;
+  }
+  showMessage("");
   
   // Get all tiles in order
   const allTiles = [];
@@ -403,19 +393,12 @@ function submitGuess() {
   // Create arrays for checking
   const guessChars = guessUpper.split('');
   const targetChars = [...allTargetChars];
+  const tileStatuses = new Array(allTiles.length);
   
   // Mark correct letters first
   for (let i = 0; i < allTiles.length; i++) {
-    if (i >= guessChars.length) break;
-    
     if (guessChars[i] === targetChars[i]) {
-      setTimeout(() => {
-        allTiles[i].classList.add("correct");
-        allTiles[i].classList.add("flip");
-        markKey(guessChars[i], "correct");
-      }, i * 200);
-      
-      // Mark as used
+      tileStatuses[i] = "correct";
       guessChars[i] = null;
       targetChars[i] = null;
     }
@@ -423,37 +406,23 @@ function submitGuess() {
   
   // Then mark present/absent letters
   for (let i = 0; i < allTiles.length; i++) {
-    if (i >= guessChars.length) break;
     if (guessChars[i] === null) continue; // Skip already marked correct
     
-    setTimeout(() => {
-      // Check if letter exists elsewhere in target
-      const targetIndex = targetChars.findIndex(char => char === guessChars[i]);
-      
-      if (targetIndex !== -1) {
-        allTiles[i].classList.add("present");
-        markKey(guessChars[i], "present");
-        targetChars[targetIndex] = null; // Mark as used
-      } else {
-        allTiles[i].classList.add("absent");
-        markKey(guessChars[i], "absent");
-      }
-      
-      allTiles[i].classList.add("flip");
-      
-      // Move to next slide after last tile is flipped
-      if (i === allTiles.length - 1) {
-        setTimeout(() => {
-          goToSlide(guessIndex + 1);
-        }, 250);
-      }
-    }, i * 200);
+    // Check if letter exists elsewhere in target
+    const targetIndex = targetChars.findIndex(char => char === guessChars[i]);
+    
+    if (targetIndex !== -1) {
+      tileStatuses[i] = "present";
+      targetChars[targetIndex] = null; // Mark as used
+    } else {
+      tileStatuses[i] = "absent";
+    }
   }
   
   guesses.push(currentGuess);
   
   // Check for win
-  const isCorrect = guessUpper === targetAnswer;
+  const isCorrect = guessUpper === answerTiles;
   if (isCorrect) {
     setTimeout(() => showMessage("🎉 Correct! You win!"), 1000);
     gameOver = true;
@@ -461,6 +430,21 @@ function submitGuess() {
     setTimeout(() => showMessage(`💀 Out of tries! Answer was: ${gameData.answer}`), 1000);
     gameOver = true;
   }
+
+  allTiles.forEach((tile, i) => {
+    setTimeout(() => {
+      const status = tileStatuses[i];
+      tile.classList.add(status);
+      tile.classList.add("flip");
+      markKey(guessUpper[i], status);
+
+      if (i === allTiles.length - 1 && !gameOver) {
+        setTimeout(() => {
+          goToSlide(guessIndex + 1);
+        }, 250);
+      }
+    }, i * 200);
+  });
   
   currentGuess = "";
 }
@@ -470,11 +454,11 @@ function showMessage(msg) {
 }
 
 function markKey(letter, status) {
-  const keyBtn = [...keyboardEl.children].find(k => k.textContent === letter);
-  if (!keyBtn || keyBtn.classList.contains('correct')) return; // Don't downgrade
-  if (status === 'correct' || (status === 'present' && !keyBtn.classList.contains('present'))) {
-    keyBtn.className = `key ${status}`;
-  } else if (!keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
-    keyBtn.classList.add('absent');
+  const matchingKey = [...keyboardEl.querySelectorAll(".key")].find(k => k.textContent === letter);
+  if (!matchingKey || matchingKey.classList.contains('correct')) return; // Don't downgrade
+  if (status === 'correct' || (status === 'present' && !matchingKey.classList.contains('present'))) {
+    matchingKey.className = `key ${status}`;
+  } else if (!matchingKey.classList.contains('correct') && !matchingKey.classList.contains('present')) {
+    matchingKey.classList.add('absent');
   }
 }

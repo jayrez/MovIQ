@@ -16,8 +16,16 @@
     <div id="guess-grid" class="grid">
       <div class="carousel"></div>
       <div class="carousel-controls">
-        <button class="carousel-button" id="prev-button">←</button>
-        <button class="carousel-button" id="next-button">→</button>
+        <button class="carousel-button" id="prev-button" aria-label="Previous guess">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 6L9 12L15 18" />
+          </svg>
+        </button>
+        <button class="carousel-button" id="next-button" aria-label="Next guess">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6L15 12L9 18" />
+          </svg>
+        </button>
       </div>
     </div>
     
