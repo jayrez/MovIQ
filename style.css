@@ -19,7 +19,7 @@ header button { position: absolute; right: 0; background: transparent; font-size
 h1 { font-size: clamp(18px, 4vw, 24px); line-height: 1.25; text-wrap: balance; margin: 8px auto; max-width: 42ch }
 .stub, #status { font-size: .85rem; color: #c6c6ca }
 h2 { text-align: center; margin: 0 0 12px }
-#board { list-style: none; padding: 0; margin: 0; display: grid; gap: 5px }
+#board { list-style: none; padding: 0; margin: 0 auto; max-width: 100%; display: grid; gap: 5px }
 #board li { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 3px }
 .word { display: inline-flex; gap: 3px; align-items: center }
 .tile, .gap { width: var(--tile); aspect-ratio: 1; display: grid; place-items: center }
