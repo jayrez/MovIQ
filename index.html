@@ -1,42 +1,34 @@
-<!-- index.html -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MovIQ - Badly Explained Movies</title>
-  <link rel="stylesheet" href="style.css" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#182421">
+  <title>MovIQ · Guess the movie</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="data.js"></script>
+  <script defer src="script.js"></script>
 </head>
 <body>
-  <div class="game-container">
-    <h1>🎬 MovIQ - Guess the Movie!</h1>
-    <p id="prompt"></p>
-    
-    <div id="guess-grid" class="grid">
-      <div class="carousel"></div>
-      <div class="carousel-controls">
-        <button class="carousel-button" id="prev-button" aria-label="Previous guess">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M15 6L9 12L15 18" />
-          </svg>
-        </button>
-        <button class="carousel-button" id="next-button" aria-label="Next guess">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 6L15 12L9 18" />
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <div class="carousel-nav" id="carousel-nav"></div>
-
-    <div id="keyboard" class="keyboard"></div>
-
-    <p id="message" class="message"></p>
-  </div>
-
-  <script src="data.js"></script>
-  <script src="script.js"></script>
+<main>
+  <header><b class="logo">Mov<span>IQ</span></b><button id="help" aria-label="How to play">How to play</button></header>
+  <section class="ticket" aria-labelledby="prompt">
+    <div class="eyebrow"><i aria-hidden="true">▶</i> Badly explained plot</div>
+    <h1 id="prompt"></h1>
+    <div class="stub"><span>Movie title</span><span id="lengths"></span></div>
+  </section>
+  <section aria-labelledby="turn">
+    <h2 id="turn"></h2>
+    <div id="board"></div>
+    <form><label for="title">Your movie title</label><div class="entry">
+      <input id="title" placeholder="Type the full title" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="go">
+      <button>Guess ↵</button>
+    </div></form>
+    <p id="status" role="status"></p>
+    <button id="again" hidden>Play another movie →</button>
+  </section>
+  <section id="history" hidden><h2>Previous guesses</h2><ol></ol></section>
+  <dialog><h2>How to play</h2><p>Identify the movie from its badly explained plot. You have six guesses. Type the entire title, including the letters already shown. Spaces and punctuation are filled automatically.</p><p>Green means the letter is in the right spot. Yellow means it belongs elsewhere in that same word. Gray means there are no remaining matches in that word.</p><form method="dialog"><button>Got it</button></form></dialog>
+</main>
 </body>
 </html>

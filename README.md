@@ -1,60 +1,9 @@
-# 🎬 MovIQ
+# MovIQ
 
-**MovIQ** is a Wordle-style guessing game where players identify a movie title based on a badly explained plot. Built using vanilla JavaScript, HTML, and CSS — no frameworks, no backend.
+Guess a movie title from a badly explained plot in six attempts. Open `index.html` in a browser or serve the repository as a static site. There is no install or build step.
 
----
+Type the full title. The board supplies spaces and punctuation and reveals a few letters in longer words. Green indicates an exact match. Yellow indicates an unmatched copy of the letter elsewhere in the same word. Previous guesses remain visible while you play.
 
-## 🕹️ How to Play
+Add movies to `movieList` in `data.js` using the existing prompt and answer fields. The current catalog uses English letters, spaces and punctuation. Movies shuffle without repeats until the catalog is exhausted.
 
-- You have **6 tries** to guess the correct movie title.
-- Each guess must match the number of tiles shown.
-- After each guess, tiles will flip and reveal:
-  - 🟩 **Green**: Correct letter, correct position  
-  - 🟨 **Yellow**: Correct letter, wrong position  
-  - ⬜ **Gray**: Letter is not in the title
-- **Spaces are displayed and filled in automatically.**
-- **Apostrophes and hyphens are ignored** during input and do not affect gameplay.
-
----
-
-## ✨ Features
-
-- Supports **multi-word movie titles**
-- Smooth tile animations (flip, fade, bounce)
-- Virtual keyboard with color feedback
-- Handles special characters cleanly
-- Random movie mode (daily mode planned)
-
----
-
-## 🛠️ Tech Stack
-
-- **HTML & CSS** – Layout and styling
-- **Vanilla JavaScript** – Game logic and animations
-- **CloudFlare Pages** – Static hosting
-
----
-
-## 📁 File Structure
-- /index.html # Main HTML structure
-- /style.css # Styles and animations
-- /script.js # Game logic and input
-- /data.js # List of possible movie titles and answers
-
----
-
-## 🚀 Deployment
-
-MovIQ is hosted on **CloudFlare Pages**.  
-To run locally, just clone the repo and open `index.html` in your browser.
-
----
-
-## 📄 License
-
-This project is open-source and licensed under the [MIT License](LICENSE).  
-You are free to use, modify, and distribute it with proper attribution.
-
----
-
-> Created with ❤️ as a passion project inspired by Wordle and bad movie summaries.
+MIT License.
