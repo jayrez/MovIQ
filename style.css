@@ -64,3 +64,8 @@ dialog::backdrop { background: #000a }
 #keyboard [data-score="near"] { background: #b59f3b }
 #keyboard [data-score="absent"] { background: #3a3a3c }
 .tile.hint { background: #273327; border: 2px solid #538d4e; color: white }
+
+.tile.next { border-color: #99999c }
+.tile.acknowledged { animation: confirm-hint 220ms ease-out }
+@keyframes confirm-hint { from { background-color: #538d4e } }
+@media (prefers-reduced-motion: reduce) { .tile.acknowledged { animation: none } }

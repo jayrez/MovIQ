@@ -1,6 +1,7 @@
 const $ = selector => document.querySelector(selector);
 const keyboard = $('#keyboard');
 let typed = '';
+let cursor = 0;
 let template = [];
 const limit = 6;
 const clean = text => text.toUpperCase().replace(/[^A-Z]/g, '');
@@ -63,6 +64,7 @@ function draw(board, letters, scored = false, showHints = true) {
     }
     board.append(group);
   });
+  if (showHints && !scored) board.querySelector('.tile:empty')?.classList.add('next');
 }
 
 const board = $('#board');
@@ -119,6 +121,7 @@ function start() {
   attempts = 0;
   finished = false;
   typed = '';
+  cursor = 0;
   $('#prompt').textContent = movie.prompt;
   $('#lengths').textContent = words.length + (words.length === 1 ? ' word' : ' words') + ' · ' + clean(movie.answer).length + ' letters';
   $('#turn').textContent = 'Guess 1 of 6';
@@ -162,11 +165,21 @@ function assembledGuess() {
 function handleKey(key) {
   if (revealing || finished || $('dialog').open) return;
   if (key === 'Enter') return submitGuess();
-  if (key === 'Backspace') typed = typed.slice(0, -1);
-  else if (/^[A-Z]$/.test(key) && typed.length < template.filter(ch => !ch).length) typed += key;
-  else return;
+  let matched = -1;
+  if (key === 'Backspace') {
+    if (!typed.length) return;
+    do { cursor--; } while (template[cursor]);
+    typed = typed.slice(0, -1);
+  } else if (/^[A-Z]$/.test(key)) {
+    while (template[cursor] && template[cursor] !== key) cursor++;
+    if (cursor === template.length) return;
+    if (template[cursor]) matched = cursor;
+    else typed += key;
+    cursor++;
+  } else return;
   showPage(latestPage());
   draw(activeRow(), assembledGuess().trimEnd());
+  if (matched >= 0) activeRow().querySelectorAll('.tile')[matched].classList.add('acknowledged');
   $('#status').textContent = '';
 }
 
@@ -221,6 +234,7 @@ async function submitGuess() {
     $('#again').focus();
   } else {
     typed = '';
+    cursor = 0;
     draw(activeRow(), '');
     $('#turn').textContent = 'Guess ' + (attempts + 1) + ' of 6';
     $('#status').textContent = 'Guess ' + attempts + ' scored.';
