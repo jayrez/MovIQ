@@ -40,7 +40,7 @@ function draw(board, letters, scored = false, showHints = true) {
       const gap = document.createElement('span');
       gap.className = 'gap';
       gap.setAttribute('aria-hidden', 'true');
-      board.append(gap);
+      board.lastElementChild.append(gap);
     }
     const group = document.createElement('span');
     group.className = 'word';
@@ -62,6 +62,39 @@ function draw(board, letters, scored = false, showHints = true) {
     board.append(group);
   });
 }
+
+const board = $('#board');
+const latestPage = () => finished ? attempts - 1 : attempts;
+const visiblePage = () => Math.round(board.scrollLeft / board.clientWidth);
+
+function updateNavigation() {
+  const page = Math.min(visiblePage(), latestPage());
+  $('#history').hidden = !board.classList.contains('paged') || latestPage() === 0;
+  $('#previous').disabled = page <= 0;
+  $('#next').disabled = page >= latestPage();
+  $('#page').textContent = 'Viewing guess ' + (page + 1) + ' of ' + (latestPage() + 1);
+}
+
+function showPage(page) {
+  if (board.classList.contains('paged')) board.scrollLeft = page * board.clientWidth;
+  updateNavigation();
+}
+
+function layoutBoard() {
+  const first = board.firstElementChild;
+  if (!first) return;
+  const wrapped = first.lastElementChild.offsetTop !== first.firstElementChild.offsetTop;
+  board.classList.toggle('paged', wrapped);
+  Array.from(board.children).forEach((row, i) => {
+    row.hidden = wrapped && i > latestPage();
+  });
+  showPage(latestPage());
+}
+
+board.addEventListener('scroll', updateNavigation);
+$('#previous').onclick = () => showPage(visiblePage() - 1);
+$('#next').onclick = () => showPage(visiblePage() + 1);
+window.addEventListener('resize', layoutBoard);
 
 function start() {
   if (!pool.length) pool = movieList.slice();
@@ -89,6 +122,7 @@ function start() {
     draw(row, '', false, n === 0);
     $('#board').append(row);
   }
+  layoutBoard();
 }
 
 async function reveal(row, guess) {
@@ -111,6 +145,7 @@ async function reveal(row, guess) {
 
 input.addEventListener('input', () => {
   if (revealing || finished) return;
+  showPage(latestPage());
   draw(activeRow(), clean(input.value));
   $('#status').textContent = '';
 });
@@ -128,6 +163,7 @@ $('form').addEventListener('submit', async event => {
     $('#status').textContent = 'Match the word lengths shown on the board.';
     return;
   }
+  showPage(latestPage());
   revealing = true;
   input.readOnly = true;
   await reveal(activeRow(), guess);
@@ -149,6 +185,7 @@ $('form').addEventListener('submit', async event => {
     $('#status').textContent = 'Guess ' + attempts + ' scored.';
     input.focus();
   }
+  layoutBoard();
 });
 $('#help').onclick = () => $('dialog').showModal();
 $('#again').onclick = () => { start(); input.focus(); };

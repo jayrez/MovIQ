@@ -20,6 +20,11 @@
   <section aria-labelledby="turn">
     <h2 id="turn"></h2>
     <ol id="board" aria-label="Movie guesses"></ol>
+    <nav id="history" aria-label="Guess history" hidden>
+      <button type="button" id="previous" aria-label="Previous guess">←</button>
+      <span id="page" aria-live="polite"></span>
+      <button type="button" id="next" aria-label="Next guess">→</button>
+    </nav>
     <form><label for="title">Your movie title</label><div class="entry">
       <input id="title" placeholder="Type the full title" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="go">
       <button>Guess ↵</button>

@@ -20,7 +20,7 @@ h1 { font-size: clamp(18px, 4vw, 24px); line-height: 1.25; text-wrap: balance; m
 .stub, #status { font-size: .85rem; color: #c6c6ca }
 h2 { text-align: center; margin: 0 0 12px }
 #board { list-style: none; padding: 0; margin: 0; display: grid; gap: 5px }
-#board li { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 3px }
+#board li { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 3px }
 .word { display: inline-flex; gap: 3px; align-items: center }
 .tile, .gap { width: var(--tile); aspect-ratio: 1; display: grid; place-items: center }
 .tile { border: 2px solid #3a3a3c; background: #121213; font-size: calc(var(--tile) * .64); font-weight: 750 }
@@ -39,3 +39,15 @@ input { min-width: 0; flex: 1; background: #202022; border: 1px solid #757577; c
 dialog { max-width: min(90vw, 420px); background: #202022; color: white; border: 1px solid #565758; padding: 24px; line-height: 1.5 }
 dialog::backdrop { background: #000a }
 [hidden] { display: none !important }
+
+#board.paged {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 0;
+}
+#board.paged li { flex: 0 0 100%; min-width: 0; scroll-snap-align: start }
+#history { display: flex; justify-content: center; gap: 12px; align-items: center; margin-top: 8px }
+#history button { width: 44px; padding: 0; background: #343436 }
+#history button:disabled { opacity: .4 }
+#page { font-size: .85rem }
