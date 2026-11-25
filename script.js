@@ -1,5 +1,7 @@
 const $ = selector => document.querySelector(selector);
-const input = $('#title');
+const keyboard = $('#keyboard');
+let typed = '';
+let template = [];
 const limit = 6;
 const clean = text => text.toUpperCase().replace(/[^A-Z]/g, '');
 let movie, words, hints, attempts, finished;
@@ -50,10 +52,10 @@ function draw(board, letters, scored = false, showHints = true) {
       const tile = document.createElement('span');
       if (/[A-Z]/.test(ch)) {
         const hint = showHints && hints[w].includes(i);
-        tile.textContent = parts[w][i] || (hint ? ch : '');
-        tile.className = 'tile ' + (marks[i] || (hint && !parts[w][i] ? 'hint' : ''));
+        tile.textContent = (parts[w][i] || '').trim() || (hint ? ch : '');
+        tile.className = 'tile ' + (marks[i] || (hint ? 'hint' : ''));
         const meaning = { exact: 'correct position', near: 'elsewhere in word', absent: 'no match' };
-        tile.setAttribute('aria-label', [tile.textContent || 'blank', meaning[marks[i]]].filter(Boolean).join(', '));
+        tile.setAttribute('aria-label', [tile.textContent || 'blank', hint ? 'fixed hint' : '', meaning[marks[i]]].filter(Boolean).join(', '));
         tile.setAttribute('role', 'img');
         i++;
       } else tile.textContent = ch;
@@ -106,15 +108,19 @@ function start() {
     const size = clean(word).length;
     return size >= 8 ? [1, size - 2] : size >= 4 ? [1] : [];
   });
+  template = words.flatMap((word, w) => Array.from(clean(word), (ch, i) =>
+    hints[w].includes(i) ? ch : ''
+  ));
   attempts = 0;
   finished = false;
-  input.value = '';
+  typed = '';
   $('#prompt').textContent = movie.prompt;
   $('#lengths').textContent = words.length + (words.length === 1 ? ' word' : ' words') + ' · ' + clean(movie.answer).length + ' letters';
   $('#turn').textContent = 'Guess 1 of 6';
   $('#status').textContent = '';
   $('#again').hidden = true;
-  $('form').hidden = false;
+  keyboard.hidden = false;
+  keyboard.querySelectorAll('button').forEach(key => delete key.dataset.score);
   $('#board').replaceChildren();
   for (let n = 0; n < limit; n++) {
     const row = document.createElement('li');
@@ -143,31 +149,61 @@ async function reveal(row, guess) {
   }));
 }
 
-input.addEventListener('input', () => {
-  if (revealing || finished) return;
+function assembledGuess() {
+  let index = 0;
+  return template.map(hint => hint || typed[index++] || ' ').join('');
+}
+
+function handleKey(key) {
+  if (revealing || finished || $('dialog').open) return;
+  if (key === 'Enter') return submitGuess();
+  if (key === 'Backspace') typed = typed.slice(0, -1);
+  else if (/^[A-Z]$/.test(key) && typed.length < template.filter(ch => !ch).length) typed += key;
+  else return;
   showPage(latestPage());
-  draw(activeRow(), clean(input.value));
+  draw(activeRow(), assembledGuess().trimEnd());
   $('#status').textContent = '';
-});
-$('form').addEventListener('submit', async event => {
-  event.preventDefault();
-  if (finished || revealing) return;
-  const guess = clean(input.value);
-  const target = clean(movie.answer);
-  if (guess.length !== target.length) {
-    $('#status').textContent = 'Enter all ' + target.length + ' letters. Your guess has ' + guess.length + '.';
-    return;
+}
+
+for (const keys of ['QWERTYUIOP', 'ASDFGHJKL', ['Enter', ...'ZXCVBNM', 'Backspace']]) {
+  const row = document.createElement('div');
+  for (const key of keys) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.key = key;
+    button.textContent = key === 'Backspace' ? '⌫' : key.toUpperCase();
+    button.setAttribute('aria-label', key);
+    button.onclick = () => handleKey(key);
+    row.append(button);
   }
-  const typedWords = input.value.trim().split(/\s+/).map(clean);
-  if (typedWords.length > 1 && typedWords.map(w => w.length).join() !== words.map(w => clean(w).length).join()) {
-    $('#status').textContent = 'Match the word lengths shown on the board.';
+  keyboard.append(row);
+}
+
+document.addEventListener('keydown', event => {
+  if (event.ctrlKey || event.metaKey || event.altKey || $('dialog').open || finished) return;
+  if (event.key === 'Enter' && event.target.closest?.('button') && !keyboard.contains(event.target)) return;
+  const key = event.key.length === 1 ? event.key.toUpperCase() : event.key;
+  if (!/^[A-Z]$/.test(key) && key !== 'Backspace' && key !== 'Enter') return;
+  event.preventDefault();
+  handleKey(key);
+});
+
+async function submitGuess() {
+  const guess = assembledGuess();
+  const target = clean(movie.answer);
+  if (guess.includes(' ')) {
+    $('#status').textContent = 'Fill the remaining tiles.';
     return;
   }
   showPage(latestPage());
   revealing = true;
-  input.readOnly = true;
   await reveal(activeRow(), guess);
-  input.readOnly = false;
+  const scores = ['absent', 'near', 'exact'];
+  for (const tile of activeRow().querySelectorAll('.tile')) {
+    const button = keyboard.querySelector('[data-key="' + tile.textContent + '"]');
+    const score = scores.find(mark => tile.classList.contains(mark));
+    if (scores.indexOf(score) > scores.indexOf(button.dataset.score)) button.dataset.score = score;
+  }
   revealing = false;
   attempts++;
   const win = guess === target;
@@ -175,18 +211,17 @@ $('form').addEventListener('submit', async event => {
   if (finished) {
     $('#turn').textContent = win ? 'You got it!' : 'That’s a wrap';
     $('#status').textContent = movie.answer + ' · ' + attempts + ' of 6 guesses';
-    $('form').hidden = true;
+    keyboard.hidden = true;
     $('#again').hidden = false;
     $('#again').focus();
   } else {
-    input.value = '';
+    typed = '';
     draw(activeRow(), '');
     $('#turn').textContent = 'Guess ' + (attempts + 1) + ' of 6';
     $('#status').textContent = 'Guess ' + attempts + ' scored.';
-    input.focus();
   }
   layoutBoard();
-});
+}
 $('#help').onclick = () => $('dialog').showModal();
-$('#again').onclick = () => { start(); input.focus(); };
+$('#again').onclick = start;
 start();

@@ -51,3 +51,16 @@ dialog::backdrop { background: #000a }
 #history button { width: 44px; padding: 0; background: #343436 }
 #history button:disabled { opacity: .4 }
 #page { font-size: .85rem }
+
+#keyboard { max-width: 500px; margin: 24px auto 0 }
+#keyboard > div { display: flex; justify-content: center; gap: clamp(3px, 1vw, 6px); margin: 0 0 8px }
+#keyboard button {
+  flex: 0 1 calc((100% - 9 * clamp(3px, 1vw, 6px)) / 10);
+  min-width: 0; height: 56px; padding: 0; background: #818384;
+  font-size: clamp(.9rem, 4vw, 1.22rem); touch-action: manipulation;
+}
+#keyboard [data-key="Enter"], #keyboard [data-key="Backspace"] { flex-grow: 1; font-size: .8rem }
+#keyboard [data-score="exact"] { background: #538d4e }
+#keyboard [data-score="near"] { background: #b59f3b }
+#keyboard [data-score="absent"] { background: #3a3a3c }
+.tile.hint { background: #273327; border: 2px solid #538d4e; color: white }
