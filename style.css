@@ -21,7 +21,7 @@ h1 { font-size: clamp(18px, 4vw, 24px); line-height: 1.25; text-wrap: balance; m
 h2 { text-align: center; margin: 0 0 12px }
 #board { list-style: none; padding: 0; margin: 0 auto; max-width: 100%; display: grid; gap: 5px }
 #board li { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 3px }
-.word { display: inline-flex; gap: 3px; align-items: center }
+.word { flex-shrink: 0; display: inline-flex; gap: 3px; align-items: center }
 .tile, .gap { width: var(--tile); aspect-ratio: 1; display: grid; place-items: center }
 .tile { border: 2px solid #3a3a3c; background: #121213; font-size: calc(var(--tile) * .64); font-weight: 750 }
 .tile:not(:empty) { border-color: #565758 }

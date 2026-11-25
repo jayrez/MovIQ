@@ -87,12 +87,23 @@ function showPage(page) {
 function layoutBoard() {
   const first = board.firstElementChild;
   if (!first) return;
-  // Wrap at the available width, then center the footprint of the longest line.
-  board.style.width = '';
-  const lineStart = first.getBoundingClientRect().left;
-  const lineEnd = Math.max(...Array.from(first.children, word => word.getBoundingClientRect().right));
-  board.style.width = Math.ceil(lineEnd - lineStart) + 'px';
-  const wrapped = first.lastElementChild.offsetTop !== first.firstElementChild.offsetTop;
+  const available = board.parentElement.clientWidth;
+  const gap = parseFloat(getComputedStyle(first).columnGap);
+  let line = 0;
+  let widest = 0;
+  let wrapped = false;
+  for (const word of first.children) {
+    const width = word.getBoundingClientRect().width;
+    const next = line ? line + gap + width : width;
+    if (next > available && line) {
+      wrapped = true;
+      line = width;
+    } else {
+      line = next;
+    }
+    widest = Math.max(widest, line);
+  }
+  board.style.width = Math.ceil(widest) + 'px';
   board.classList.toggle('paged', wrapped);
   Array.from(board.children).forEach((row, i) => {
     row.hidden = wrapped && i > latestPage();
