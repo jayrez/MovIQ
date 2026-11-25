@@ -1,47 +1,41 @@
 :root {
   color-scheme: dark;
-  font-family: system-ui, sans-serif;
-  background: #16221f;
-  color: #f3f0de;
-  --gold: #ffcc76;
-  --tile: clamp(21px, 6.5vw, 36px);
+  font-family: Arial, Helvetica, sans-serif;
+  background: #121213;
+  color: #f8f8f8;
+  --tile: clamp(21px, 6.5vw, 42px);
 }
 * { box-sizing: border-box }
-body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at top, #293932, transparent 75%) }
-main { max-width: 660px; margin: auto; padding: 18px clamp(14px, 4vw, 32px) 48px }
-header, .stub, .entry { display: flex; align-items: center; justify-content: space-between; gap: 8px }
-header { border-bottom: 1px solid #56645a; padding-bottom: 12px }
-.logo { font: bold 33px Georgia, serif; letter-spacing: -2px }
-.logo span { color: var(--gold); font-style: italic }
-button, input { font: inherit; border-radius: 6px; min-height: 44px }
-button { cursor: pointer; background: var(--gold); color: #25251e; font-weight: 750; border: 0; padding: 8px 16px }
-header button { background: transparent; color: #efe7cd; font-size: .85rem }
-:focus-visible { outline: 3px solid #76d8c0; outline-offset: 3px }
-.ticket { position: relative; background: #f6e9ce; color: #272e28; border-radius: 12px; margin: 24px 0; overflow: hidden; box-shadow: 0 5px 16px #10181352 }
-.eyebrow, .stub, h2 { font: 700 .77rem/1.4 ui-monospace, monospace; letter-spacing: .09em; text-transform: uppercase }
-.eyebrow { padding: 20px 22px 0; color: #795032 }
-.eyebrow i { margin-right: 6px; font-style: normal }
-h1 { font: 600 clamp(1.55rem, 5vw, 2.25rem)/1.14 Georgia, serif; margin: 14px 22px 22px; text-wrap: pretty }
-.stub { border-top: 2px dashed #bcae92; padding: 11px 22px; font-size: .65rem }
-.stub:before, .stub:after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #22312a; bottom: 29px; left: -8px }
-.stub:after { left: auto; right: -8px }
-h2 { color: #d4cbb5; margin: 20px 0 12px }
-#board, li { display: flex; align-items: center; flex-wrap: wrap; gap: 5px 2px }
-.word { display: inline-flex; align-items: center; gap: 2px }
-.tile, .gap { width: var(--tile); height: calc(var(--tile) * 1.16); display: inline-grid; place-items: center; border-radius: 4px }
-.tile { border: 1px solid #738279; background: #2b3b34; font: bold clamp(14px, 4vw, 20px) ui-monospace, monospace }
-.gap { width: calc(var(--tile) * .65); height: calc(var(--tile) * .65); background: #101914 }
-.hint { color: var(--gold); border-color: #ba9764 }
-.exact { background: #86cd9a; color: #112d19 }
-.near { background: #ebc766; color: #382900 }
-.absent { background: #526059; color: white }
-label { display: block; margin: 20px 0 8px; font-weight: 650 }
-input { min-width: 0; width: 100%; background: #101b17; border: 1px solid #758079; padding: 10px; color: white }
-.entry button { white-space: nowrap }
-#status { color: #eddaad; font-size: .9rem }
-ol { padding: 0 }
-li { border-top: 1px solid #48564e; padding: 12px 0 }
-dialog { background: #f6e9ce; color: #222c26; max-width: min(90vw, 420px); border: 0; border-radius: 12px; padding: 24px; line-height: 1.5 }
-dialog h2 { color: inherit; margin-top: 0 }
-dialog::backdrop { background: #0b110ed9 }
-[hidden] { display: none }
+body { margin: 0 }
+main { max-width: 680px; margin: auto; padding: 0 12px 32px }
+header { position: relative; display: grid; place-items: center; min-height: 58px; border-bottom: 1px solid #3a3a3c }
+.logo { font: 900 36px/1 Georgia, serif; letter-spacing: -2px }
+button, input { font: inherit; min-height: 44px; border-radius: 4px }
+button { cursor: pointer; border: 0; background: #538d4e; color: white; font-weight: bold; padding: 0 16px }
+header button { position: absolute; right: 0; background: transparent; font-size: .8rem; padding: 0 4px }
+:focus-visible { outline: 2px solid #a4cafa; outline-offset: 2px }
+.clue { text-align: center; padding: 22px 4px 16px }
+.eyebrow, h2 { font: bold .72rem/1.3 Arial, sans-serif; text-transform: uppercase; letter-spacing: .12em; color: #c6c6ca }
+h1 { font-size: clamp(18px, 4vw, 24px); line-height: 1.25; text-wrap: balance; margin: 8px auto; max-width: 42ch }
+.stub, #status { font-size: .85rem; color: #c6c6ca }
+h2 { text-align: center; margin: 0 0 12px }
+#board { list-style: none; padding: 0; margin: 0; display: grid; gap: 5px }
+#board li { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 3px }
+.word { display: inline-flex; gap: 3px; align-items: center }
+.tile, .gap { width: var(--tile); aspect-ratio: 1; display: grid; place-items: center }
+.tile { border: 2px solid #3a3a3c; background: #121213; font-size: calc(var(--tile) * .64); font-weight: 750 }
+.tile:not(:empty) { border-color: #565758 }
+.tile.hint { color: #c8c8cc; border-style: dashed }
+.gap { background: #202022; width: calc(var(--tile) * .58) }
+.tile.exact { background: #538d4e; border-color: #538d4e }
+.tile.near { background: #b59f3b; border-color: #b59f3b }
+.tile.absent { background: #3a3a3c; border-color: #3a3a3c }
+form, #status { max-width: 420px; margin: 16px auto 0 }
+label { display: block; margin-bottom: 6px; font-size: .85rem }
+.entry { display: flex; gap: 6px }
+input { min-width: 0; flex: 1; background: #202022; border: 1px solid #757577; color: white; padding: 8px }
+#status { text-align: center }
+#again { display: block; margin: 12px auto }
+dialog { max-width: min(90vw, 420px); background: #202022; color: white; border: 1px solid #565758; padding: 24px; line-height: 1.5 }
+dialog::backdrop { background: #000a }
+[hidden] { display: none !important }

@@ -4,6 +4,8 @@ const limit = 6;
 const clean = text => text.toUpperCase().replace(/[^A-Z]/g, '');
 let movie, words, hints, attempts, finished;
 let pool = [];
+let revealing = false;
+const activeRow = () => $('#board').children[attempts];
 
 function scoreWord(answer, guess) {
   const marks = Array(answer.length).fill('absent');
@@ -30,7 +32,7 @@ function partition(letters) {
   });
 }
 
-function draw(board, letters, scored = false) {
+function draw(board, letters, scored = false, showHints = true) {
   board.replaceChildren();
   const parts = partition(letters);
   words.forEach((word, w) => {
@@ -47,7 +49,7 @@ function draw(board, letters, scored = false) {
     for (const ch of word) {
       const tile = document.createElement('span');
       if (/[A-Z]/.test(ch)) {
-        const hint = hints[w].includes(i);
+        const hint = showHints && hints[w].includes(i);
         tile.textContent = parts[w][i] || (hint ? ch : '');
         tile.className = 'tile ' + (marks[i] || (hint && !parts[w][i] ? 'hint' : ''));
         const meaning = { exact: 'correct position', near: 'elsewhere in word', absent: 'no match' };
@@ -78,19 +80,43 @@ function start() {
   $('#lengths').textContent = words.length + (words.length === 1 ? ' word' : ' words') + ' · ' + clean(movie.answer).length + ' letters';
   $('#turn').textContent = 'Guess 1 of 6';
   $('#status').textContent = '';
-  $('#history ol').replaceChildren();
-  $('#history').hidden = $('#again').hidden = true;
+  $('#again').hidden = true;
   $('form').hidden = false;
-  draw($('#board'), '');
+  $('#board').replaceChildren();
+  for (let n = 0; n < limit; n++) {
+    const row = document.createElement('li');
+    row.setAttribute('aria-label', 'Guess ' + (n + 1));
+    draw(row, '', false, n === 0);
+    $('#board').append(row);
+  }
+}
+
+async function reveal(row, guess) {
+  draw(row, guess, true);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const tiles = [...row.querySelectorAll('.tile')];
+  const delay = Math.min(200, 1100 / tiles.length);
+  await Promise.all(tiles.map((tile, index) => {
+    const face = { backgroundColor: '#121213', borderColor: '#565758' };
+    const scored = getComputedStyle(tile).backgroundColor;
+    const back = { backgroundColor: scored, borderColor: scored };
+    return tile.animate([
+      { ...face, transform: 'rotateX(0deg)', offset: 0 },
+      { ...face, transform: 'rotateX(90deg)', offset: 0.5 },
+      { ...back, transform: 'rotateX(-90deg)', offset: 0.5 },
+      { ...back, transform: 'rotateX(0deg)', offset: 1 }
+    ], { duration: 500, delay: index * delay, fill: 'backwards', easing: 'ease-in-out' }).finished;
+  }));
 }
 
 input.addEventListener('input', () => {
-  draw($('#board'), clean(input.value));
+  if (revealing || finished) return;
+  draw(activeRow(), clean(input.value));
   $('#status').textContent = '';
 });
-$('form').addEventListener('submit', event => {
+$('form').addEventListener('submit', async event => {
   event.preventDefault();
-  if (finished) return;
+  if (finished || revealing) return;
   const guess = clean(input.value);
   const target = clean(movie.answer);
   if (guess.length !== target.length) {
@@ -102,26 +128,25 @@ $('form').addEventListener('submit', event => {
     $('#status').textContent = 'Match the word lengths shown on the board.';
     return;
   }
+  revealing = true;
+  input.readOnly = true;
+  await reveal(activeRow(), guess);
+  input.readOnly = false;
+  revealing = false;
   attempts++;
   const win = guess === target;
   finished = win || attempts === limit;
   if (finished) {
-    draw($('#board'), guess, true);
     $('#turn').textContent = win ? 'You got it!' : 'That’s a wrap';
     $('#status').textContent = movie.answer + ' · ' + attempts + ' of 6 guesses';
     $('form').hidden = true;
     $('#again').hidden = false;
     $('#again').focus();
   } else {
-    const row = document.createElement('li');
-    draw(row, guess, true);
-    row.setAttribute('aria-label', 'Guess ' + attempts);
-    $('#history ol').prepend(row);
-    $('#history').hidden = false;
     input.value = '';
-    draw($('#board'), '');
+    draw(activeRow(), '');
     $('#turn').textContent = 'Guess ' + (attempts + 1) + ' of 6';
-    $('#status').textContent = 'Guess ' + attempts + ' scored below.';
+    $('#status').textContent = 'Guess ' + attempts + ' scored.';
     input.focus();
   }
 });
